@@ -1,24 +1,27 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router";
+// src/routes/AppRouter.js
+
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import LoginPage from "../components/Login";
 import HomePage from "../components/cartList";
- 
+
 export const AppRouter = () => {
   const isLogin = localStorage.getItem("token");
 
   return (
-    <>
-      <Router>
+    <Router>
+      <Routes>
         {isLogin ? (
-          <Routes>
+          <>
             <Route path="/home" element={<HomePage />} />
-           </Routes>
+            <Route path="*" element={<Navigate to="/home" />} />
+          </>
         ) : (
-          <Routes>
+          <>
             <Route path="/" element={<LoginPage />} />
-           </Routes>
+            <Route path="*" element={<Navigate to="/" />} />
+          </>
         )}
-        
-      </Router>
-    </>
+      </Routes>
+    </Router>
   );
 };
