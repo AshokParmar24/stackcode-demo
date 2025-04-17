@@ -22,13 +22,27 @@ import { styled } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import { userlsit } from "../../utils/contants";
 import CloseIcon from "@mui/icons-material/Close";
+import { useId } from "react";
+import { Tune } from "@mui/icons-material";
 
 const GoodPage = () => {
   const [original, setOriginal] = useState([]);
   const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
-  const [editUse, setEdituser] = useState(null);
+  const [editUse, setEdituser] = useState({
+    id: null,
+    name: "",
+    email: "",
+    role: "",
+  });
+  const [error, setError] = useState({
+    name: false,
+    email: false,
+    role: false,
+  });
+  const [isEdite, setIsEdit] = useState(false);
   const [search, setSearch] = useState("");
+  const id = useId();
 
   const handleClickOpen = (item) => {
     console.log("item :>> ", item);
@@ -36,14 +50,43 @@ const GoodPage = () => {
     setOpen(true);
   };
   const handleClose = () => {
-    const dataUpdate = data.map((v) => {
-      return v.id === editUse.id ? editUse : v;
-    });
-    console.log("dataUpdate", dataUpdate);
-    setData(dataUpdate);
-    setOriginal(dataUpdate);
+    console.log("editUse :>> ", editUse);
+    const isValidEmail = (email) => {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? false : true;
+    };
 
-    setOpen(false);
+    const newError = {
+      name: !editUse.name.trim(),
+      email: !editUse.email.trim() || !isValidEmail(),
+      role: !editUse.role, // No need for trim() since it's a number
+    };
+
+    setError(newError);
+
+    // Check if any errors exist
+    const hasErrors = Object.values(newError).includes(true);
+    if (!hasErrors) {
+      if (isEdite) {
+        const dataUpdate = data.map((v) => {
+          return v.id === editUse.id ? editUse : v;
+        });
+        console.log("dataUpdate", dataUpdate);
+        setData(dataUpdate);
+        setOriginal(dataUpdate);
+
+        setOpen(false);
+        setEdituser({ id: null, name: "", email: "", role: "" });
+      } else {
+        const addData = [...data, { ...editUse, id: id }];
+        setData(addData);
+        setOpen(false);
+        setOriginal(addData);
+        setEdituser({ id: null, name: "", email: "", role: "" });
+        console.log(data, original,addData);
+
+      }
+    }
+    console.log("error :>> ", error);
   };
 
   useEffect(() => {
@@ -53,27 +96,39 @@ const GoodPage = () => {
 
   return (
     <Box padding={5}>
-      <TextField
-        sx={{ paddingBottom: "20px" }}
-        label="Search"
-        value={search}
-        fullWidth
-        onChange={(e) => {
-          setSearch(e.target.value);
-          if (e.target.value.length > 0) {
-            const filteredUsers = data.filter(
-              (item) =>
-                item.name
-                  .toLowerCase()
-                  .includes(e.target.value?.toLowerCase()) ||
-                item.email.toLowerCase().includes(e.target.value?.toLowerCase())
-            );
-            setData(filteredUsers);
-          } else {
-            setData(original);
-          }
-        }}
-      />
+      <Box>
+        <TextField
+          sx={{ paddingBottom: "20px" }}
+          label="Search"
+          value={search}
+          fullWidth
+          onChange={(e) => {
+            setSearch(e.target.value);
+            if (e.target.value.length > 0) {
+              const filteredUsers = data.filter(
+                (item) =>
+                  item.name
+                    .toLowerCase()
+                    .includes(e.target.value?.toLowerCase()) ||
+                  item.email
+                    .toLowerCase()
+                    .includes(e.target.value?.toLowerCase())
+              );
+              setData(filteredUsers);
+            } else {
+              setData(original);
+            }
+          }}
+        />
+        <Button
+          onClick={() => {
+            setOpen(true);
+            setIsEdit(false);
+          }}
+        >
+          Add User
+        </Button>
+      </Box>
 
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -125,16 +180,22 @@ const GoodPage = () => {
         </Table>
       </TableContainer>
       <Dialog
-        onClose={handleClose}
+        onClose={() => {
+          setEdituser({ id: null, name: "", email: "", role: "" });
+          setOpen(false);
+        }}
         aria-labelledby="customized-dialog-title"
         open={open}
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          Edit User Details
+          {isEdite ? "Edit User Details" : "Create User"}
         </DialogTitle>
         <IconButton
           aria-label="close"
-          onClick={handleClose}
+          onClick={() => {
+            setEdituser({ id: null, name: "", email: "", role: "" });
+            setOpen(false);
+          }}
           sx={(theme) => ({
             position: "absolute",
             right: 8,
@@ -153,43 +214,70 @@ const GoodPage = () => {
               width: "500px",
             }}
           >
-            <TextField
-              required
-              label="name"
-              variant="filled"
-              value={editUse?.name}
-              fullWidth
-              onChange={(e) => {
-                setEdituser({ ...editUse, name: e.target.value });
-              }}
-            />
-            <TextField
-              required
-              label="Email"
-              variant="filled"
-              value={editUse?.email}
-              fullWidth
-              onChange={(e) => {
-                setEdituser({ ...editUse, email: e.target.value });
-              }}
-            />
-
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={editUse?.role}
-              label="Role"
-              onChange={(e) => {
-                setEdituser({ ...editUse, role: e.target.value });
-              }}
-            >
-              <MenuItem value={1}>ADMIN</MenuItem>
-              <MenuItem value={2}>USER</MenuItem>
-            </Select>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <TextField
+                required
+                label="name"
+                variant="filled"
+                value={editUse?.name}
+                fullWidth
+                onChange={(e) => {
+                  setEdituser({ ...editUse, name: e.target.value });
+                }}
+              />
+              {error.name ? (
+                <Typography sx={{ fontSize: "12px", color: "red" }}>
+                  please enter name
+                </Typography>
+              ) : (
+                ""
+              )}
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <TextField
+                required
+                type="email"
+                label="Email"
+                variant="filled"
+                value={editUse?.email}
+                fullWidth
+                onChange={(e) => {
+                  setEdituser({ ...editUse, email: e.target.value });
+                }}
+              />
+              {error.email ? (
+                <Typography sx={{ fontSize: "12px", color: "red" }}>
+                  please enter email
+                </Typography>
+              ) : (
+                ""
+              )}
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={editUse?.role}
+                label="Role"
+                onChange={(e) => {
+                  setEdituser({ ...editUse, role: e.target.value });
+                }}
+              >
+                <MenuItem value={1}>ADMIN</MenuItem>
+                <MenuItem value={2}>USER</MenuItem>
+              </Select>
+              {error.role ? (
+                <Typography sx={{ fontSize: "12px", color: "red" }}>
+                  please enter role
+                </Typography>
+              ) : (
+                ""
+              )}
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Save changes</Button>
+          <Button onClick={handleClose}>Save </Button>
         </DialogActions>
       </Dialog>
     </Box>
