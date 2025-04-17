@@ -1,25 +1,30 @@
+// src/components/Login.js
+
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { userlsit } from "../../utils/contants";
 import { useNavigate } from "react-router-dom";
+
 const LoginPage = () => {
   const [data, setData] = useState({ email: "", password: "" });
   const [error, setError] = useState(false);
 
-  const navigate=useNavigate()
+  const navigate = useNavigate();
+
   const onsubmit = () => {
-    const isAilavableUser = userlsit.find((v) => v.email === data.email);
-    console.log("isAilavableUser", isAilavableUser);
-    if (isAilavableUser && isAilavableUser.password == data.password) {
-      localStorage.setItem("token", true);
-      
+    const isAilavableUser = userlsit.find(
+      (v) => v.email === data.email && v.password === data.password
+    );
+    console.log("isAilavableUser :>> ", isAilavableUser);
+    if (isAilavableUser) {
+      localStorage.setItem("token", "trueuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
       setError(false);
-      navigate("/home")
+      navigate("/admin/dashboard");
     } else {
       setError(true);
-      localStorage.setItem("token", false);
     }
   };
+
   return (
     <Box
       sx={{
@@ -31,9 +36,8 @@ const LoginPage = () => {
     >
       <Box
         sx={{
-          width: "[600px",
+          width: "600px", // ✅ Fix: removed typo [600px
           height: "400px",
-          color: "red",
           display: "flex",
           flexDirection: "column",
           gap: "20px",
@@ -41,33 +45,32 @@ const LoginPage = () => {
       >
         <TextField
           required
-          label="email"
+          label="Email"
           variant="filled"
           value={data.email}
           fullWidth
-          onChange={(e) => {
-            setData({ ...data, email: e.target.value });
-          }}
+          onChange={(e) => setData({ ...data, email: e.target.value })}
         />
         <TextField
           required
           label="Password"
+          type="text"
           variant="filled"
           value={data.password}
           fullWidth
-          onChange={(e) => {
-            setData({ ...data, password: e.target.value });
-          }}
-          sx={{ marginTop: "10px" }}
+          onChange={(e) => setData({ ...data, password: e.target.value })}
         />
-
-        <Button sx={{ marginTop: "10px" }} onClick={onsubmit} fullWidth>
-          {" "}
+        <Button
+          onClick={onsubmit}
+          fullWidth
+          variant="contained"
+          color="primary"
+        >
           Submit
         </Button>
         {error && (
-          <Typography color="red" sx={{ fontSize: "12px" }}>
-            email and password is wrong
+          <Typography color="error" sx={{ fontSize: "12px" }}>
+            Email or password is incorrect
           </Typography>
         )}
       </Box>

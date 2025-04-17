@@ -2,18 +2,22 @@ const roleUser = 2;
 const roleAdmine = 1;
 export const userlsit = [
   {
+    id: 1,
     name: "ashok",
     email: "ashok@gmail.com",
     role: roleUser,
     password: "Test@123",
   },
   {
+    id: 2,
+
     name: "Prit",
     email: "prit@gmail.com",
     role: roleUser,
     password: "Test@123",
   },
   {
+    id: 3,
     name: "manav",
     email: "manav@gmail.com",
     role: roleAdmine,

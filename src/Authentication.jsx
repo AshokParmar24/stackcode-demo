@@ -1,13 +1,13 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import React from "react";
+import { Navigate, useLocation, Outlet } from "react-router-dom";
 
-export const PrivateRoutes = () => {
+const Authorization = () => {
   const location = useLocation();
-  const isLogin = localStorage.getItem("token");
-  
-
-  return isLogin ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/login" replace state={{ from: location }} />
-  );
+  const token = localStorage.getItem("token");
+  if (token) {
+    return <Outlet />;
+  }
+  return <Navigate to="/" state={{ paath: location.pathname }} replace />;
 };
+
+export default Authorization;

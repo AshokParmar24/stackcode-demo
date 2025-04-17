@@ -1,26 +1,32 @@
 // src/routes/AppRouter.js
 
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import LoginPage from "../components/Login";
-import HomePage from "../components/cartList";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import LoginPage from "../components/Login/index";
+import HomePage from "../components/CartList/index";
+import GoodPage from "../components/Good";
+import Authorization from "../Authentication";
 
 export const AppRouter = () => {
-  const isLogin = localStorage.getItem("token");
-
+  const isLogin = () => {
+    return !!localStorage.getItem("token");
+  };
   return (
     <Router>
       <Routes>
-        {isLogin ? (
-          <>
-            <Route path="/home" element={<HomePage />} />
-            <Route path="*" element={<Navigate to="/home" />} />
-          </>
-        ) : (
-          <>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </>
-        )}
+        {/* Protected Routes inside Authorization wrapper */}
+        <Route element={<Authorization />}>
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/admin/dashboard" element={<GoodPage />} />
+        </Route>
+        <Route path="/" element={<LoginPage />} />
+
+        {/* Catch-all fallback */}
+        <Route path="*" element={<Navigate to={isLogin() ? "/home" : "/"} />} />
       </Routes>
     </Router>
   );
