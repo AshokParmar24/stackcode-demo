@@ -48,16 +48,17 @@ const GoodPage = () => {
     console.log("item :>> ", item);
     setEdituser(item);
     setOpen(true);
+    setIsEdit(true)
   };
   const handleClose = () => {
     console.log("editUse :>> ", editUse);
     const isValidEmail = (email) => {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? false : true;
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ;
     };
 
     const newError = {
       name: !editUse.name.trim(),
-      email: !editUse.email.trim() || !isValidEmail(),
+      email: !editUse.email.trim() && isValidEmail(),
       role: !editUse.role, // No need for trim() since it's a number
     };
 
@@ -87,6 +88,7 @@ const GoodPage = () => {
       }
     }
     console.log("error :>> ", error);
+    setIsEdit(false)
   };
 
   useEffect(() => {
