@@ -7,7 +7,7 @@ const Authorization = () => {
   if (token) {
     return <Outlet />;
   }
-  return <Navigate to="/" state={{ paath: location.pathname }} replace />;
+  return <Navigate to="/" state={{ path: location.pathname }} replace />;
 };
 
 export default Authorization;
